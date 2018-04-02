@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "930101916075",
+    "firebase_url": "https://restaurante-e36b7.firebaseio.com",
+    "project_id": "restaurante-e36b7",
+    "storage_bucket": "restaurante-e36b7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930101916075:android:4ee66cf3ecd969a0",
+        "android_client_info": {
+          "package_name": "inatel.com.br.restaurante"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930101916075-ubkuc30toerqe4ggem984pq1acjojoao.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "inatel.com.br.restaurante",
+            "certificate_hash": "8ec1851b2fef1311fba44eced5402c69650b3658"
+          }
+        },
+        {
+          "client_id": "930101916075-96548j0j9i9aef570p9pmi5tb8eoaa3q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjwzlBFDRveb5kEzzkhXAjyJ416e8c0m4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "930101916075-96548j0j9i9aef570p9pmi5tb8eoaa3q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

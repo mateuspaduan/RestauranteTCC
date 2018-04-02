@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="inatel.com.br.restaurante.activity.RegisterActivity">
+
+    <LinearLayout
+        android:id="@+id/box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="32dp"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp"
+        android:gravity="center"
+        android:layout_marginTop="40dp"
+        android:layout_below="@+id/progressBar"
+        android:layout_centerHorizontal="true">
+
+        <EditText
+            android:id="@+id/completeName"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:hint="Nome completo"
+            android:gravity="center"
+            android:ems="15"/>
+
+        <EditText
+            android:id="@+id/userCPF"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:hint="CPF"
+            android:gravity="center"
+            android:ems="15"/>
+
+        <EditText
+            android:id="@+id/phoneNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="15"
+            android:gravity="center"
+            android:hint="Número de telefone"
+            android:inputType="numberDecimal"/>
+
+        <EditText
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="15"
+            android:hint="Email"
+            android:gravity="center"
+            android:inputType="textEmailAddress"
+            android:layout_alignEnd="@+id/imageView2" />
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="15"
+            android:gravity="center"
+            android:hint="Senha (6 caractéres ao menos)"
+            android:inputType="textPassword"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/registerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:text="Registrar"
+        android:backgroundTint="#003767"
+        android:textColor="#FFFFFF"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:onClick="registerBtn"
+        android:layout_below="@+id/box"
+        android:layout_centerHorizontal="true" />
+
+    <RelativeLayout
+        android:id="@+id/progressBar"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center_horizontal"
+        android:visibility="gone"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="-2dp"
+        android:clickable="false"
+        android:background="#88000000">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>
