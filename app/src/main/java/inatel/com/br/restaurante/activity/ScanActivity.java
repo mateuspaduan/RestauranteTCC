@@ -48,6 +48,7 @@ public class ScanActivity extends AppCompatActivity {
 
     private String orderName;
     private String orderPrice;
+    private String tableNumber;
 
     private String nameUser;
     private String timeOrder;
@@ -154,10 +155,17 @@ public class ScanActivity extends AppCompatActivity {
                     orderObject = qrcodes.valueAt(0).displayValue;
 
                     try {
-
+                      /*{
+                        "data":{
+	                        "nome":"Macarrao",
+	                        "preco":"R$25,00",
+	                        "mesa":"Mesa 01"
+	                        }
+                        }*/
                         jsonResult = new JSONObject(orderObject);
-                        orderName = jsonResult.getJSONObject("data").getString("name");
-                        orderPrice = jsonResult.getJSONObject("data").getString("price");
+                        orderName = jsonResult.getJSONObject("data").getString("nome");
+                        orderPrice = jsonResult.getJSONObject("data").getString("preco");
+                        tableNumber = jsonResult.getJSONObject("data").getString("mesa");
                         //Log.d("Json", jsonResult.toString());
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -165,6 +173,7 @@ public class ScanActivity extends AppCompatActivity {
 
                     SharedPreferencesController.putString(getApplicationContext(), "orderName", orderName);
                     SharedPreferencesController.putString(getApplicationContext(), "orderPrice", orderPrice);
+                    SharedPreferencesController.putString(getApplicationContext(), "tableNumber", tableNumber);
 
                     Intent i = new Intent(ScanActivity.this, OrderActivity.class);
                     startActivity(i);

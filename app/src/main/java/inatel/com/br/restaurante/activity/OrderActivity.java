@@ -53,6 +53,7 @@ public class OrderActivity extends AppCompatActivity {
 
     private String orderName;
     private String orderPrice;
+    private String tableNumber;
 
     private Order order;
 
@@ -73,6 +74,8 @@ public class OrderActivity extends AppCompatActivity {
 
         orderName = SharedPreferencesController.getString(this, "orderName");
         orderPrice = SharedPreferencesController.getString(this, "orderPrice");
+        tableNumber = SharedPreferencesController.getString(this, "tableNumber");
+
         productReference = imageReference.child(orderName + ".jpg");
 
         foodReference.addValueEventListener(new ValueEventListener() {
@@ -98,7 +101,7 @@ public class OrderActivity extends AppCompatActivity {
             public void onClick(View v){
 
                 order = new Order(orderName,orderPrice);
-                orderReference.child("Mesa 01").setValue(order);
+                orderReference.child(tableNumber).setValue(order);
 
                 Intent i = new Intent(OrderActivity.this, ScanActivity.class);
                 startActivity(i);

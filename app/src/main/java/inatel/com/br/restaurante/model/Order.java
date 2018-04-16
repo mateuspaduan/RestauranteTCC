@@ -8,6 +8,7 @@ public class Order {
 
     public String custOrder;
     public String custTime;
+    public String custName;
 
     public Order(String order, String time){
 
