@@ -49,7 +49,7 @@ public class OrderActivity extends AppCompatActivity {
 
     private String value;
 
-    private ImageView imageView;
+    //private ImageView imageView;
 
     private String orderName;
     private String orderPrice;
