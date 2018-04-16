@@ -11,6 +11,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -27,6 +28,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 import inatel.com.br.restaurante.R;
@@ -42,13 +46,20 @@ public class ScanActivity extends AppCompatActivity {
 
     private TextView textQrCode;
 
+    private String orderName;
+    private String orderPrice;
+
     private String nameUser;
     private String timeOrder;
-    private String orderResult;
+    private String orderObject;
+
+    private JSONObject jsonResult;
 
     private BarcodeDetector barcodeDetector;
 
     private CameraSource cameraSource;
+
+    private Order order;
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference orderReference = database.getReference("Pedidos");
@@ -60,6 +71,7 @@ public class ScanActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         cameraPreview.setVisibility(View.INVISIBLE);
+        textQrCode.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -139,38 +151,25 @@ public class ScanActivity extends AppCompatActivity {
                 final SparseArray<Barcode> qrcodes = detections.getDetectedItems();
                 if(qrcodes.size() != 0){
 
-                    orderResult = qrcodes.valueAt(0).displayValue;
-                    SharedPreferencesController.putString(getApplicationContext(), "orderResult", orderResult);
+                    orderObject = qrcodes.valueAt(0).displayValue;
+
+                    try {
+
+                        jsonResult = new JSONObject(orderObject);
+                        orderName = jsonResult.getJSONObject("data").getString("name");
+                        orderPrice = jsonResult.getJSONObject("data").getString("price");
+                        //Log.d("Json", jsonResult.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    SharedPreferencesController.putString(getApplicationContext(), "orderName", orderName);
+                    SharedPreferencesController.putString(getApplicationContext(), "orderPrice", orderPrice);
 
                     Intent i = new Intent(ScanActivity.this, OrderActivity.class);
                     startActivity(i);
 
                     finish();
-                    //final Order order = new Order(qrcodes.valueAt(0).displayValue);
-                    //orderReference.child("Mesa 01").setValue(order);
-
-
-
-                    /*textQrCode.post(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            timeReference.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                    timeOrder = dataSnapshot.child(order.getCustOrder()).getValue(String.class);
-                                }
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-
-                            textQrCode.setVisibility(View.VISIBLE);
-                            textQrCode.setText("O seu pedido vai demorar aproximadamente " + timeOrder);
-                        }
-                    });*/
                 }
             }
         });
@@ -193,6 +192,7 @@ public class ScanActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 cameraPreview.setVisibility(View.VISIBLE);
+                textQrCode.setVisibility(View.INVISIBLE);
             }
         });
     }

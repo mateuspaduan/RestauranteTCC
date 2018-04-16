@@ -7,10 +7,12 @@ package inatel.com.br.restaurante.model;
 public class Order {
 
     public String custOrder;
+    public String custTime;
 
-    public Order(String order){
+    public Order(String order, String time){
 
         this.custOrder = order;
+        this.custTime = time;
     }
 
     public String getCustOrder() {
@@ -19,5 +21,14 @@ public class Order {
 
     public void setCustOrder(String custOrder) {
         this.custOrder = custOrder;
+    }
+
+
+    public String getCustPrice() {
+        return custTime;
+    }
+
+    public void setCustPrice(float custPrice) {
+        this.custTime = custTime;
     }
 }
