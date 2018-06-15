@@ -40,12 +40,16 @@ public class SplashActivity extends AppCompatActivity {
 
                 String user = SharedPreferencesController.getString(SplashActivity.this, "username");
 
+                SharedPreferencesController.putFloat(SplashActivity.this, "vConta", 0);
+
                 if (!user.equals("-1")) {
-                    Intent i = new Intent(SplashActivity.this, ScanActivity.class);
+                    SharedPreferencesController.putString(SplashActivity.this, "logado", "true");
+                    Intent i = new Intent(SplashActivity.this, WelcomeActivity.class);
                     startActivity(i);
                     finish();
                 } else {
-                    Intent i = new Intent(SplashActivity.this, LoginActivity.class);
+                    SharedPreferencesController.putString(SplashActivity.this, "logado", "false");
+                    Intent i = new Intent(SplashActivity.this, WelcomeActivity.class);
                     startActivity(i);
                     finish();
                 }

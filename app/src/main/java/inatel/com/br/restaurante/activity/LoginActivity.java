@@ -12,6 +12,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -42,6 +45,9 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -89,6 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Algum erro ocorreu.", Toast.LENGTH_LONG).show();
                         } else {
                             if (mKeepLogged.isChecked()) {
+                                SharedPreferencesController.putString(LoginActivity.this, "logado", "true");
                                 SharedPreferencesController.putString(LoginActivity.this, "username", mTextEmail);
                                 SharedPreferencesController.putString(LoginActivity.this, "password", mTextPassword);
                             }

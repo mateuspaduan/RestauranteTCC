@@ -8,12 +8,10 @@ public class User {
 
     public String mEmail;
     public String mPhoneNumber;
-    public String mCPF;
 
-    public User(String email, String phoneNumber, String CPF){
+    public User(String email, String phoneNumber){
 
         this.mEmail = email;
         this.mPhoneNumber = phoneNumber;
-        this.mCPF = CPF;
     }
 }

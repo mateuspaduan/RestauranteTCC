@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,6 +25,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.Calendar;
 
 import inatel.com.br.restaurante.R;
 import inatel.com.br.restaurante.controller.SharedPreferencesController;
@@ -42,8 +45,12 @@ public class OrderActivity extends AppCompatActivity {
     private DatabaseReference orderReference = database.getReference("Pedidos");
 
     DatabaseReference foodReference = database.getReference("Pratos");
+    DatabaseReference massReference = foodReference.child("Massas");
+    DatabaseReference meatReference = foodReference.child("Carnes");
     DatabaseReference ordersReference = database.getReference("Pedidos");
     DatabaseReference tableReference = ordersReference.child("Mesa 01");
+
+    DatabaseReference food;
 
     private Uri mImageUri;
 
@@ -59,7 +66,16 @@ public class OrderActivity extends AppCompatActivity {
 
     private TextView mTextView;
 
+    private EditText editText;
+
     private Button mButton;
+
+    private float mBill;
+    private float mTotal = 0;
+
+    private float mOtherTotal;
+
+    private String mCommentary;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,20 +86,40 @@ public class OrderActivity extends AppCompatActivity {
         mTextView = (TextView) findViewById(R.id.textView);
         mTextView.setGravity(View.TEXT_ALIGNMENT_GRAVITY);
 
+        editText = (EditText) findViewById(R.id.editText);
+
         mButton = (Button) findViewById(R.id.btn1);
 
         orderName = SharedPreferencesController.getString(this, "orderName");
         orderPrice = SharedPreferencesController.getString(this, "orderPrice");
         tableNumber = SharedPreferencesController.getString(this, "tableNumber");
 
-        productReference = imageReference.child(orderName + ".jpg");
+        mTotal = SharedPreferencesController.getFloat(this, "vConta");
 
-        foodReference.addValueEventListener(new ValueEventListener() {
+        //productReference = imageReference.child(orderName + ".jpg");
+
+        if(orderName.equals("Macarrao") || orderName.equals("Lasanha")){
+
+            food = massReference;
+        }
+
+        else if(orderName.equals("Picanha") || orderName.equals("Alcatra")){
+
+            food = meatReference;
+        }
+
+        food.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 value = dataSnapshot.child(orderName).getValue(String.class);
-                //productReference = imageReference.child(beaconChild + ".jpg");
+
+                mTextView.setText("Você pediu " + orderName + "," + " esse pedido vai demorar " + value +
+                        " e vai custar " + orderPrice + ", deseja confirmar?");
+
+                mBill = Float.parseFloat(orderPrice);
+                mTotal = mTotal + mBill;
+                SharedPreferencesController.putFloat(getApplicationContext(), "vConta", mTotal);
             }
 
             @Override
@@ -92,33 +128,29 @@ public class OrderActivity extends AppCompatActivity {
             }
         });
 
-        mTextView.setText("Você pediu " + orderName + "," + " esse pedido vai demorar " + value +
-        " minutos e vai custar R$" + orderPrice + ", deseja confirmar?");
+
 
         mButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v){
 
-                order = new Order(orderName,orderPrice);
-                orderReference.child(tableNumber).setValue(order);
+                mCommentary = editText.getText().toString();
+
+                if(mCommentary.equals("")){
+
+                    order = new Order(orderName,orderPrice, null);
+                }
+
+                else order = new Order(orderName,orderPrice, mCommentary);
+
+                orderReference.child(tableNumber).child(Calendar.getInstance().getTime().toString()).setValue(order);
+
+                SharedPreferencesController.putBool(OrderActivity.this, "confirmed", true);
 
                 Intent i = new Intent(OrderActivity.this, ScanActivity.class);
                 startActivity(i);
             }
         });
-
-        /*productReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Log.i("Uri address: ", uri.toString());
-                mImageUri = uri;
-                Glide.with(getApplicationContext()).load(mImageUri).override(40,40).into(imageView);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-            }
-        });*/
     }
 }

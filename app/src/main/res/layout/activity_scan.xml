@@ -19,12 +19,27 @@
         android:id="@+id/textQrCode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Seja bem-vindo ao nosso restaurante! Clique no botão de scan de QRCode para fazer o seu pedido!!"
+        android:text=""
         android:visibility="visible"
-        android:layout_marginTop="169dp"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="68dp"
         android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <LinearLayout android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1"
+        android:layout_below="@+id/textQrCode"
         android:layout_alignParentStart="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_marginTop="33dp">
+
+        <ListView
+            android:id="@+id/my_list"
+            android:layout_width="fill_parent"
+            android:layout_height="235dp"
+            android:layout_weight="0.17" />
+    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/exit"
@@ -51,4 +66,31 @@
         app:backgroundTint="#3F51B5"
         android:src="@drawable/qrcode" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:backgroundTint="#3F51B5"
+        android:src="@drawable/check"
+        android:layout_above="@+id/exit"
+        android:layout_toEndOf="@+id/scan"
+        android:layout_marginBottom="19dp" />
+
+    <TextView
+        android:id="@+id/textBill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text=""
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/exit" />
+
+    <TextView android:id="@+id/textFeedback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clique p/ Feedback"
+        android:layout_marginStart="16dp"
+        android:layout_alignBottom="@+id/scan"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

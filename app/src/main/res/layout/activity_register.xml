@@ -27,15 +27,6 @@
             android:ems="15"/>
 
         <EditText
-            android:id="@+id/userCPF"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:hint="CPF"
-            android:inputType="numberDecimal"
-            android:gravity="center"
-            android:ems="15"/>
-
-        <EditText
             android:id="@+id/phoneNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

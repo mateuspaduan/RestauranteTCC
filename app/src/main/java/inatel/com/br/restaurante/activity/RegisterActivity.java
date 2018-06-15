@@ -31,13 +31,11 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText mPhoneNumber;
     private EditText mEmail;
     private EditText mPassword;
-    private EditText mCPF;
 
     private String mTextName;
     private String mTextPhoneNumber;
     private String mTextEmail;
     private String mTextPassword;
-    private String mTextCPF;
 
     private RelativeLayout mProgressBar;
 
@@ -82,7 +80,6 @@ public class RegisterActivity extends AppCompatActivity {
         mPhoneNumber = (EditText) findViewById(R.id.phoneNumber);
         mEmail = (EditText) findViewById(R.id.email);
         mPassword = (EditText) findViewById(R.id.password);
-        mCPF = (EditText) findViewById(R.id.userCPF);
 
         mRegisterButton = (Button) findViewById(R.id.registerButton);
 
@@ -99,7 +96,6 @@ public class RegisterActivity extends AppCompatActivity {
                 mTextPhoneNumber = mPhoneNumber.getText().toString();
                 mTextEmail = mEmail.getText().toString();
                 mTextPassword = mPassword.getText().toString();
-                mTextCPF = mCPF.getText().toString();
 
                 if ((mTextName.equals("") || mTextPhoneNumber.equals("") || mTextEmail.equals("") ||
                         mTextPassword.equals(""))) {
@@ -118,9 +114,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 Toast.makeText(RegisterActivity.this, "Sucesso!", Toast.LENGTH_SHORT);
                                 mProgressBar.setVisibility(View.GONE);
 
-                                SharedPreferencesController.putString(RegisterActivity.this, "cpf", mTextCPF);
-
-                                User user = new User(mTextEmail, mTextPhoneNumber, mTextCPF);
+                                User user = new User(mTextEmail, mTextPhoneNumber);
                                 userReference.child(mTextName).setValue(user);
 
                                 Intent i = new Intent(RegisterActivity.this, LoginActivity.class);

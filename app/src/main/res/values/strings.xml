@@ -6,4 +6,9 @@
     <string name="title_activity_scan">ScanActivity</string>
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_order">OrderActivity</string>
+    <string name="facebook_app_id">418953808576693</string>
+    <string name="fb_login_protocol_scheme">fb418953808576693</string>
+    <string name="title_activity_feed_back">FeedBackActivity</string>
+    <string name="title_activity_welcome">WelcomeActivity</string>
+    <string name="title_activity_payment">PaymentActivity</string>
 </resources>

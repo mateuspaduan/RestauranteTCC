@@ -3,6 +3,7 @@ package inatel.com.br.restaurante.activity;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -16,7 +17,9 @@ import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
@@ -32,8 +35,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import inatel.com.br.restaurante.R;
+import inatel.com.br.restaurante.adapter.OrderAdapter;
+import inatel.com.br.restaurante.controller.DataHandlerController;
 import inatel.com.br.restaurante.controller.SharedPreferencesController;
 import inatel.com.br.restaurante.model.Order;
 
@@ -41,10 +47,14 @@ public class ScanActivity extends AppCompatActivity {
 
     private FloatingActionButton exit;
     private FloatingActionButton scan;
+    private FloatingActionButton check;
 
     private SurfaceView cameraPreview;
 
     private TextView textQrCode;
+    private TextView mBillText;
+
+    private TextView mFeedback;
 
     private String orderName;
     private String orderPrice;
@@ -62,11 +72,25 @@ public class ScanActivity extends AppCompatActivity {
 
     private Order order;
 
+    private float mTotalBill;
+
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference orderReference = database.getReference("Pedidos");
     private DatabaseReference timeReference = database.getReference("Pratos");
 
     final int RequestCameraPermissionID = 1001;
+
+    private String cityName;
+
+    private ArrayList<Order> listOffers = new ArrayList<Order>();
+
+    OrderAdapter adapter;
+
+    ListView lView;
+
+    boolean confirmed = false;
+
+    private DataHandlerController mHandler;
 
     @Override
     public void onBackPressed() {
@@ -102,11 +126,23 @@ public class ScanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
 
+        cityName = SharedPreferencesController.getString(this, "cityName");
+
         exit = (FloatingActionButton) findViewById(R.id.exit);
         scan = (FloatingActionButton) findViewById(R.id.scan);
+        check = (FloatingActionButton) findViewById(R.id.check);
 
         cameraPreview = (SurfaceView) findViewById(R.id.cameraPreview);
         textQrCode = (TextView) findViewById(R.id.textQrCode);
+
+        textQrCode.setText("Seja bem-vindo ao nosso restaurante em " + cityName + "! Clique no botão de scan de QRCode para fazer o seu pedido!!");
+
+        mBillText = (TextView) findViewById(R.id.textBill);
+
+        mFeedback = (TextView) findViewById(R.id.textFeedback);
+
+        lView = (ListView) findViewById(R.id.my_list);
+        adapter = new OrderAdapter(ScanActivity.this, listOffers);
 
         barcodeDetector = new BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build();
 
@@ -177,11 +213,39 @@ public class ScanActivity extends AppCompatActivity {
 
                     Intent i = new Intent(ScanActivity.this, OrderActivity.class);
                     startActivity(i);
+                }
+            }
+        });
 
+        mFeedback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent i = new Intent(ScanActivity.this, FeedBackActivity.class);
+                startActivity(i);
+
+                finish();
+            }
+        });
+
+        check.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(SharedPreferencesController.getFloat(ScanActivity.this, "vConta") == 0){
+
+                    Toast.makeText(ScanActivity.this, "Você ainda não realizou nenhum pedido", Toast.LENGTH_SHORT).show();
+                }
+
+                else{
+
+                    Intent i = new Intent(ScanActivity.this, PaymentActivity.class);
+                    startActivity(i);
                     finish();
                 }
             }
         });
+
 
         exit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -204,5 +268,35 @@ public class ScanActivity extends AppCompatActivity {
                 textQrCode.setVisibility(View.INVISIBLE);
             }
         });
+
+        mTotalBill = 0;
+
+        if(SharedPreferencesController.getFloat(this, "vConta") == 0){
+
+            mBillText.setText("Total da conta: R$0,00 ");
+        }
+
+        else {
+
+            mTotalBill = SharedPreferencesController.getFloat(this, "vConta");
+            mBillText.setText("Total da conta: R$" + "45,00");//String.format("%.2f", "45"));
+        }
+
+        confirmed = SharedPreferencesController.getBool(ScanActivity.this, "confirmed");
+        if(confirmed == true){
+
+            SharedPreferencesController.putBool(ScanActivity.this, "confirmed", false);
+            Order order = new Order(SharedPreferencesController.getString(ScanActivity.this, "orderName"),
+                    SharedPreferencesController.getString(ScanActivity.this, "orderPrice"));
+            listOffers.add(order);
+            lView.setAdapter(adapter);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        lView.setAdapter(adapter);
     }
 }
