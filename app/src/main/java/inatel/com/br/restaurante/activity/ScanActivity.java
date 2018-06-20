@@ -70,9 +70,9 @@ public class ScanActivity extends AppCompatActivity {
 
     private CameraSource cameraSource;
 
-    private Order order;
+    private float mTotalBill = 0;
 
-    private float mTotalBill;
+    private boolean readed = false;
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference orderReference = database.getReference("Pedidos");
@@ -97,6 +97,11 @@ public class ScanActivity extends AppCompatActivity {
 
         cameraPreview.setVisibility(View.INVISIBLE);
         textQrCode.setVisibility(View.VISIBLE);
+        scan.setVisibility(View.VISIBLE);
+        exit.setVisibility(View.VISIBLE);
+        check.setVisibility(View.VISIBLE);
+        mFeedback.setVisibility(View.VISIBLE);
+        mBillText.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -188,31 +193,29 @@ public class ScanActivity extends AppCompatActivity {
                 final SparseArray<Barcode> qrcodes = detections.getDetectedItems();
                 if(qrcodes.size() != 0){
 
-                    orderObject = qrcodes.valueAt(0).displayValue;
+                    if (!readed) {
+                        orderObject = qrcodes.valueAt(0).displayValue;
 
-                    try {
-                      /*{
-                        "data":{
-	                        "nome":"Macarrao",
-	                        "preco":"R$25,00",
-	                        "mesa":"Mesa 01"
-	                        }
-                        }*/
-                        jsonResult = new JSONObject(orderObject);
-                        orderName = jsonResult.getJSONObject("data").getString("nome");
-                        orderPrice = jsonResult.getJSONObject("data").getString("preco");
-                        tableNumber = jsonResult.getJSONObject("data").getString("mesa");
-                        //Log.d("Json", jsonResult.toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        try {
+                            jsonResult = new JSONObject(orderObject);
+                            orderName = jsonResult.getJSONObject("data").getString("nome");
+                            orderPrice = jsonResult.getJSONObject("data").getString("preco");
+                            tableNumber = jsonResult.getJSONObject("data").getString("mesa");
+
+                            Intent i = new Intent(ScanActivity.this, OrderActivity.class);
+
+                            i.putExtra("orderName", orderName);
+                            i.putExtra("orderPrice", orderPrice);
+                            i.putExtra("tableNumber", tableNumber);
+
+                            readed = true;
+
+                            startActivityForResult(i, 1);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
 
-                    SharedPreferencesController.putString(getApplicationContext(), "orderName", orderName);
-                    SharedPreferencesController.putString(getApplicationContext(), "orderPrice", orderPrice);
-                    SharedPreferencesController.putString(getApplicationContext(), "tableNumber", tableNumber);
-
-                    Intent i = new Intent(ScanActivity.this, OrderActivity.class);
-                    startActivity(i);
                 }
             }
         });
@@ -266,37 +269,57 @@ public class ScanActivity extends AppCompatActivity {
 
                 cameraPreview.setVisibility(View.VISIBLE);
                 textQrCode.setVisibility(View.INVISIBLE);
+                scan.setVisibility(View.INVISIBLE);
+                exit.setVisibility(View.INVISIBLE);
+                check.setVisibility(View.INVISIBLE);
+                mFeedback.setVisibility(View.INVISIBLE);
+                mBillText.setVisibility(View.INVISIBLE);
             }
         });
-
-        mTotalBill = 0;
-
-        if(SharedPreferencesController.getFloat(this, "vConta") == 0){
-
-            mBillText.setText("Total da conta: R$0,00 ");
-        }
-
-        else {
-
-            mTotalBill = SharedPreferencesController.getFloat(this, "vConta");
-            mBillText.setText("Total da conta: R$" + "45,00");//String.format("%.2f", "45"));
-        }
-
-        confirmed = SharedPreferencesController.getBool(ScanActivity.this, "confirmed");
-        if(confirmed == true){
-
-            SharedPreferencesController.putBool(ScanActivity.this, "confirmed", false);
-            Order order = new Order(SharedPreferencesController.getString(ScanActivity.this, "orderName"),
-                    SharedPreferencesController.getString(ScanActivity.this, "orderPrice"));
-            listOffers.add(order);
-            lView.setAdapter(adapter);
-        }
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
+        readed = false;
+        cameraPreview.setVisibility(View.INVISIBLE);
+        textQrCode.setVisibility(View.VISIBLE);
+        scan.setVisibility(View.VISIBLE);
+        exit.setVisibility(View.VISIBLE);
+        check.setVisibility(View.VISIBLE);
+        mFeedback.setVisibility(View.VISIBLE);
+        mBillText.setVisibility(View.VISIBLE);
+    }
 
-        lView.setAdapter(adapter);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        cameraPreview.setVisibility(View.INVISIBLE);
+
+        if (resultCode == ScanActivity.RESULT_OK && requestCode == 1) {
+            String name = data.getStringExtra("orderName");
+            String value = data.getStringExtra("orderPrice");
+            String commentary = data.getStringExtra("orderCommentary");
+            Order order;
+
+            readed = false;
+
+            float price = Float.parseFloat(value.replace(',', '.'));
+
+            mTotalBill = mTotalBill + price;
+
+            mBillText.setText("Total da conta: R$" + String.format("%.2f", mTotalBill));
+
+            if (commentary != null) {
+                order = new Order(name, value, commentary);
+            } else {
+                order = new Order(name, value, "");
+            }
+
+            listOffers.add(order);
+            lView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+        }
     }
 }

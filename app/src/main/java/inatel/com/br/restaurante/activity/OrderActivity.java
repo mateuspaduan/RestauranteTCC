@@ -26,6 +26,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Calendar;
 
 import inatel.com.br.restaurante.R;
@@ -90,9 +93,9 @@ public class OrderActivity extends AppCompatActivity {
 
         mButton = (Button) findViewById(R.id.btn1);
 
-        orderName = SharedPreferencesController.getString(this, "orderName");
-        orderPrice = SharedPreferencesController.getString(this, "orderPrice");
-        tableNumber = SharedPreferencesController.getString(this, "tableNumber");
+        orderName = getIntent().getExtras().getString("orderName");
+        orderPrice = getIntent().getExtras().getString("orderPrice");
+        tableNumber = getIntent().getExtras().getString("tableNumber");
 
         mTotal = SharedPreferencesController.getFloat(this, "vConta");
 
@@ -115,11 +118,7 @@ public class OrderActivity extends AppCompatActivity {
                 value = dataSnapshot.child(orderName).getValue(String.class);
 
                 mTextView.setText("Você pediu " + orderName + "," + " esse pedido vai demorar " + value +
-                        " e vai custar " + orderPrice + ", deseja confirmar?");
-
-                mBill = Float.parseFloat(orderPrice);
-                mTotal = mTotal + mBill;
-                SharedPreferencesController.putFloat(getApplicationContext(), "vConta", mTotal);
+                        " e vai custar R$" + orderPrice + ", deseja confirmar?");
             }
 
             @Override
@@ -137,20 +136,18 @@ public class OrderActivity extends AppCompatActivity {
 
                 mCommentary = editText.getText().toString();
 
-                if(mCommentary.equals("")){
-
-                    order = new Order(orderName,orderPrice, null);
-                }
-
-                else order = new Order(orderName,orderPrice, mCommentary);
-
                 orderReference.child(tableNumber).child(Calendar.getInstance().getTime().toString()).setValue(order);
 
-                SharedPreferencesController.putBool(OrderActivity.this, "confirmed", true);
-
                 Intent i = new Intent(OrderActivity.this, ScanActivity.class);
-                startActivity(i);
+                i.putExtra("orderName", orderName);
+                i.putExtra("orderPrice", orderPrice);
+                if (mCommentary != null) {
+                    i.putExtra("orderCommentary", mCommentary);
+                }
+                setResult(RESULT_OK, i);
+                finish();
             }
         });
     }
+
 }
