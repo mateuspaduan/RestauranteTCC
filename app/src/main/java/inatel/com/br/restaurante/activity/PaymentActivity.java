@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
@@ -25,12 +26,20 @@ public class PaymentActivity extends AppCompatActivity {
     private CheckBox checkBoxCartao;
     private CheckBox checkBoxCheque;
 
+    private TextView mTotalBill;
+
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference paymentReference = database.getReference("Pagamentos");
 
     private Button button;
 
     private String payment = "0";
+
+    private float totalBill;
+
+    private String tableNumber;
+
+    private boolean paid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +50,14 @@ public class PaymentActivity extends AppCompatActivity {
         checkBoxCartao = (CheckBox) findViewById(R.id.checkBox2);
         checkBoxCheque = (CheckBox) findViewById(R.id.checkBox4);
 
+        mTotalBill = (TextView) findViewById(R.id.textView4);
+
         button = (Button) findViewById(R.id.button3);
+
+        totalBill = getIntent().getExtras().getFloat("totalBill");
+        tableNumber = getIntent().getExtras().getString("tableNumber");
+
+        mTotalBill.setText("Total da conta: R$" + String.format("%.2f", totalBill));
 
         if(checkBoxDinheiro.isChecked() == true){
 
@@ -84,14 +100,17 @@ public class PaymentActivity extends AppCompatActivity {
 
                 if(!payment.equals("0")){
 
-                    Payment finalPayment = new Payment(payment);
-                    paymentReference.child(SharedPreferencesController.getString(PaymentActivity.this, "tableNumber")).setValue(finalPayment);
+                    //Cria objeto pagamento, sobe para o banco de dados com a referência do NÚMERO DA MESA e seta o valor da conta
+                    Payment finalPayment = new Payment(payment, "R$"+String.format("%.2f", totalBill));
+                    paymentReference.child(tableNumber).setValue(finalPayment);
                     Toast.makeText(getApplicationContext(), "Pedindo conta..", Toast.LENGTH_LONG).show();
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         public void run() {
 
                             Intent i = new Intent(PaymentActivity.this, ScanActivity.class);
+                            paid = true;
+                            i.putExtra("paid",paid);
                             startActivity(i);
 
                             finish();

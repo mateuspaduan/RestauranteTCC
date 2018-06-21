@@ -1,7 +1,7 @@
 package inatel.com.br.restaurante.model;
 
 /**
- * Created by mateus on 20/03/18.
+ * Created on 20/03/18.
  */
 
 public class Order {

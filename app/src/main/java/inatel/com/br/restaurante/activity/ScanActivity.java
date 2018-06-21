@@ -74,6 +74,9 @@ public class ScanActivity extends AppCompatActivity {
 
     private boolean readed = false;
 
+    private int offerSize;
+
+    //Instância e referência do banco de dados
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference orderReference = database.getReference("Pedidos");
     private DatabaseReference timeReference = database.getReference("Pratos");
@@ -92,8 +95,12 @@ public class ScanActivity extends AppCompatActivity {
 
     private DataHandlerController mHandler;
 
+    private String tableOrdered;
+
+    private boolean paid = false;
+
     @Override
-    public void onBackPressed() {
+    public void onBackPressed() { //Se a câmera está aberta e o botão de voltar do Android é pressionado, fecha a câmera
 
         cameraPreview.setVisibility(View.INVISIBLE);
         textQrCode.setVisibility(View.VISIBLE);
@@ -102,10 +109,11 @@ public class ScanActivity extends AppCompatActivity {
         check.setVisibility(View.VISIBLE);
         mFeedback.setVisibility(View.VISIBLE);
         mBillText.setVisibility(View.VISIBLE);
+        lView.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) { //Callback do request de câmera
 
         switch (requestCode) {
 
@@ -131,7 +139,7 @@ public class ScanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
 
-        cityName = SharedPreferencesController.getString(this, "cityName");
+        cityName = SharedPreferencesController.getString(this, "cityName"); //Busca nome da cidade no banco local do Android
 
         exit = (FloatingActionButton) findViewById(R.id.exit);
         scan = (FloatingActionButton) findViewById(R.id.scan);
@@ -140,6 +148,7 @@ public class ScanActivity extends AppCompatActivity {
         cameraPreview = (SurfaceView) findViewById(R.id.cameraPreview);
         textQrCode = (TextView) findViewById(R.id.textQrCode);
 
+        //Seta texto de bem-vindo
         textQrCode.setText("Seja bem-vindo ao nosso restaurante em " + cityName + "! Clique no botão de scan de QRCode para fazer o seu pedido!!");
 
         mBillText = (TextView) findViewById(R.id.textBill);
@@ -147,6 +156,8 @@ public class ScanActivity extends AppCompatActivity {
         mFeedback = (TextView) findViewById(R.id.textFeedback);
 
         lView = (ListView) findViewById(R.id.my_list);
+
+        //Criando o adapter para a lista de pedidos
         adapter = new OrderAdapter(ScanActivity.this, listOffers);
 
         barcodeDetector = new BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build();
@@ -204,13 +215,22 @@ public class ScanActivity extends AppCompatActivity {
 
                             Intent i = new Intent(ScanActivity.this, OrderActivity.class);
 
+                            offerSize = listOffers.size();
+
+                            //Coloca informações dentro do Intent para serem passados de uma tela pra outra
                             i.putExtra("orderName", orderName);
                             i.putExtra("orderPrice", orderPrice);
                             i.putExtra("tableNumber", tableNumber);
+                            i.putExtra("orderSize", offerSize);
 
+                            tableOrdered = tableNumber;
+
+                            //Flag para ler código apenas uma vez
                             readed = true;
 
+                            //Ele abre outra tela, mas fica no aguardo da tela atual para realizar ação
                             startActivityForResult(i, 1);
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -226,8 +246,6 @@ public class ScanActivity extends AppCompatActivity {
 
                 Intent i = new Intent(ScanActivity.this, FeedBackActivity.class);
                 startActivity(i);
-
-                finish();
             }
         });
 
@@ -235,14 +253,19 @@ public class ScanActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if(SharedPreferencesController.getFloat(ScanActivity.this, "vConta") == 0){
+                paid = getIntent().getExtras().getBoolean("paid");
+
+                if(mTotalBill == 0){ //Se o valor da conta por 0, informa que ainda não foi realizado pedido
 
                     Toast.makeText(ScanActivity.this, "Você ainda não realizou nenhum pedido", Toast.LENGTH_SHORT).show();
                 }
 
-                else{
+                else{ //Senão abre tela de pagamento
 
+                    paid = false;
                     Intent i = new Intent(ScanActivity.this, PaymentActivity.class);
+                    i.putExtra("totalBill", mTotalBill);
+                    i.putExtra("tableNumber", tableOrdered);
                     startActivity(i);
                     finish();
                 }
@@ -254,12 +277,18 @@ public class ScanActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                SharedPreferencesController.putString(ScanActivity.this, "username", "-1");
-                SharedPreferencesController.putString(ScanActivity.this, "password", "-1");
+                if (mTotalBill == 0 ){
 
-                Intent i = new Intent(ScanActivity.this, LoginActivity.class);
-                startActivity(i);
-                finish();
+                    //Tira informações de manter logado do usuário
+                    SharedPreferencesController.putString(ScanActivity.this, "username", "-1");
+                    SharedPreferencesController.putString(ScanActivity.this, "password", "-1");
+
+                    Intent i = new Intent(ScanActivity.this, LoginActivity.class);
+                    startActivity(i);
+                    finish();
+                }
+
+                else Toast.makeText(ScanActivity.this, "Você ainda não pagou a conta", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -267,6 +296,7 @@ public class ScanActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                //Deixando invisíveis elementos na tela quando a câmera é aberta
                 cameraPreview.setVisibility(View.VISIBLE);
                 textQrCode.setVisibility(View.INVISIBLE);
                 scan.setVisibility(View.INVISIBLE);
@@ -274,12 +304,13 @@ public class ScanActivity extends AppCompatActivity {
                 check.setVisibility(View.INVISIBLE);
                 mFeedback.setVisibility(View.INVISIBLE);
                 mBillText.setVisibility(View.INVISIBLE);
+                lView.setVisibility(View.INVISIBLE);
             }
         });
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume() { //Quando volta a tela seta flag de lido falsa e mostra elementos
         super.onResume();
         readed = false;
         cameraPreview.setVisibility(View.INVISIBLE);
@@ -289,14 +320,17 @@ public class ScanActivity extends AppCompatActivity {
         check.setVisibility(View.VISIBLE);
         mFeedback.setVisibility(View.VISIBLE);
         mBillText.setVisibility(View.VISIBLE);
+        lView.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) { //Retorno da tela de pedido
         super.onActivityResult(requestCode, resultCode, data);
 
+        //Fecha câmera
         cameraPreview.setVisibility(View.INVISIBLE);
 
+        //Resultado da outra tela foi como o esperado?
         if (resultCode == ScanActivity.RESULT_OK && requestCode == 1) {
             String name = data.getStringExtra("orderName");
             String value = data.getStringExtra("orderPrice");
@@ -305,18 +339,23 @@ public class ScanActivity extends AppCompatActivity {
 
             readed = false;
 
+            //Muda virgula do QRCode para ponto para fazer cálculos
             float price = Float.parseFloat(value.replace(',', '.'));
 
+            //faz a soma da conta
             mTotalBill = mTotalBill + price;
 
+            //Coloca no TextView o valor da conta formatado
             mBillText.setText("Total da conta: R$" + String.format("%.2f", mTotalBill));
 
+            //Se o comentário n for nulo
             if (commentary != null) {
                 order = new Order(name, value, commentary);
             } else {
                 order = new Order(name, value, "");
             }
 
+            //Adiciona na lista o pedido, seta o adapter novamente e notifica atualização
             listOffers.add(order);
             lView.setAdapter(adapter);
             adapter.notifyDataSetChanged();

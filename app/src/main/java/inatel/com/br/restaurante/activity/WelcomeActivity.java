@@ -44,27 +44,26 @@ public class WelcomeActivity extends AppCompatActivity {
     private String loginStatus;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) { //Cria todos os elementos da tela
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
-        cameraPreview = (SurfaceView) findViewById(R.id.cameraPreview);
+        cameraPreview = (SurfaceView) findViewById(R.id.cameraPreview); //Associa elementos do Layout XML no código Java
 
         barcodeDetector = new BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build();
 
-        cameraSource = new CameraSource.Builder(this, barcodeDetector).setRequestedPreviewSize(640, 500).build();
+        cameraSource = new CameraSource.Builder(this, barcodeDetector).setRequestedPreviewSize(640, 500).build(); //Seta propriedades do detector, tipo, etc
 
-        cameraPreview.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override
+        cameraPreview.getHolder().addCallback(new SurfaceHolder.Callback() { //Chama função para abrir câmera
             public void surfaceCreated(SurfaceHolder holder) {
 
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) { //Check de permissão para uso da câmera
                     ActivityCompat.requestPermissions(WelcomeActivity.this, new String[]{Manifest.permission.CAMERA},
                             RequestCameraPermissionID);
                     return;
                 }
                 try {
-                    cameraSource.start(cameraPreview.getHolder());
+                    cameraSource.start(cameraPreview.getHolder()); //Se concede a permissão, abre a câmera
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -78,7 +77,7 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
 
-                cameraSource.stop();
+                cameraSource.stop(); //Mata a instânica se fechar a tela
             }
         });
 
@@ -89,12 +88,12 @@ public class WelcomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void receiveDetections(Detector.Detections<Barcode> detections) {
+            public void receiveDetections(Detector.Detections<Barcode> detections) { //Callback quando é detectado algum padrão
 
-                final SparseArray<Barcode> qrcodes = detections.getDetectedItems();
-                if(qrcodes.size() != 0){
+                final SparseArray<Barcode> qrcodes = detections.getDetectedItems(); //Cria array para informações detectadas
+                if(qrcodes.size() != 0){ //Se o array não for nulo
 
-                    cityObject = qrcodes.valueAt(0).displayValue;
+                    cityObject = qrcodes.valueAt(0).displayValue; //Pega primeiro elemento do vetor (primeira info detectada)
 
                     try {
                       /*{
@@ -104,17 +103,20 @@ public class WelcomeActivity extends AppCompatActivity {
 	                        "mesa":"Mesa 01"
 	                        }
                         }*/
-                        jsonResult = new JSONObject(cityObject);
-                        cityName = jsonResult.getJSONObject("data").getString("nomecidade");
-                        SharedPreferencesController.putString(WelcomeActivity.this, "cityName", cityName);
+                        jsonResult = new JSONObject(cityObject); //Cria objeto JSON com a String detectada com os dados
+                        cityName = jsonResult.getJSONObject("data").getString("nomecidade");//Capta informação do JSON
+                        SharedPreferencesController.putString(WelcomeActivity.this, "cityName", cityName); //Coloca no banco geral do Android para usar em outra tela
                         //Log.d("Json", jsonResult.toString());
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
-                    loginStatus = SharedPreferencesController.getString(WelcomeActivity.this, "logado");
+                    loginStatus = SharedPreferencesController.getString(WelcomeActivity.this, "logado");  //Busca info de logado
 
-                    if(loginStatus.equals("true")){
+                    if(loginStatus.equals("true")){ //Se estiver logado, chama tela principal
+
+                        //Cria um Intent, um objeto para pegar o contexto de uma Activity e informar para onde o contexto deve ser levado
+                        //No caso, estamos em WelcomeActivity, e estamos indo para o ScanActivity
 
                         Intent i = new Intent(WelcomeActivity.this, ScanActivity.class);
                         startActivity(i);
@@ -122,7 +124,7 @@ public class WelcomeActivity extends AppCompatActivity {
                         finish();
                     }
 
-                    else {
+                    else { //Senão, tela de login
 
                         Intent i = new Intent(WelcomeActivity.this, LoginActivity.class);
                         startActivity(i);
@@ -135,7 +137,7 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) { //Callback para check de permissão de câmera
 
         switch (requestCode) {
 

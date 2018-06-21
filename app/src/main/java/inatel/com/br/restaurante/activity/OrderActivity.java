@@ -35,19 +35,16 @@ import inatel.com.br.restaurante.R;
 import inatel.com.br.restaurante.controller.SharedPreferencesController;
 import inatel.com.br.restaurante.model.Order;
 
+import static android.R.attr.data;
 import static android.R.attr.order;
 
 public class OrderActivity extends AppCompatActivity {
-
-    FirebaseStorage storage = FirebaseStorage.getInstance();
-    StorageReference storageReference = storage.getReference();
-    StorageReference imageReference = storageReference.child("images");
-    StorageReference productReference;
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference orderReference = database.getReference("Pedidos");
 
     DatabaseReference foodReference = database.getReference("Pratos");
+    DatabaseReference drinkReference = database.getReference("Bebidas");
     DatabaseReference massReference = foodReference.child("Massas");
     DatabaseReference meatReference = foodReference.child("Carnes");
     DatabaseReference ordersReference = database.getReference("Pedidos");
@@ -55,17 +52,11 @@ public class OrderActivity extends AppCompatActivity {
 
     DatabaseReference food;
 
-    private Uri mImageUri;
-
     private String value;
-
-    //private ImageView imageView;
 
     private String orderName;
     private String orderPrice;
     private String tableNumber;
-
-    private Order order;
 
     private TextView mTextView;
 
@@ -73,12 +64,11 @@ public class OrderActivity extends AppCompatActivity {
 
     private Button mButton;
 
-    private float mBill;
-    private float mTotal = 0;
-
-    private float mOtherTotal;
-
     private String mCommentary;
+
+    private Order order;
+
+    private int numberOrders = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,57 +83,91 @@ public class OrderActivity extends AppCompatActivity {
 
         mButton = (Button) findViewById(R.id.btn1);
 
+        //Pega informações passadas pelo INTENT
         orderName = getIntent().getExtras().getString("orderName");
         orderPrice = getIntent().getExtras().getString("orderPrice");
         tableNumber = getIntent().getExtras().getString("tableNumber");
-
-        mTotal = SharedPreferencesController.getFloat(this, "vConta");
+        numberOrders = getIntent().getExtras().getInt("orderSize");
 
         //productReference = imageReference.child(orderName + ".jpg");
 
-        if(orderName.equals("Macarrao") || orderName.equals("Lasanha")){
+        if(orderName.equals("Macarrao alho e oleo") || orderName.equals("Lasanha a Bolonhesa")){
 
             food = massReference;
+            //Pega os valores que estão na referência food de acordo com o If/Else de cima
+            food.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    //Pega o tempo do pedido de acordo com o nome dele
+                    value = dataSnapshot.child(orderName).getValue(String.class);
+
+                    //Informa usuário através de texto
+                    mTextView.setText("Você pediu " + orderName + "," + " esse pedido vai demorar " + value +
+                            " e vai custar R$" + orderPrice + ", deseja confirmar?");
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
         }
 
-        else if(orderName.equals("Picanha") || orderName.equals("Alcatra")){
+        else if(orderName.equals("Picanha na Chapa com Fritas") || orderName.equals("Filet ao Molho Madeira")){
 
             food = meatReference;
+            //Pega os valores que estão na referência food de acordo com o If/Else de cima
+            food.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    //Pega o tempo do pedido de acordo com o nome dele
+                    value = dataSnapshot.child(orderName).getValue(String.class);
+
+                    //Informa usuário através de texto
+                    mTextView.setText("Você pediu " + orderName + "," + " esse pedido vai demorar " + value +
+                            " e vai custar R$" + orderPrice + ", deseja confirmar?");
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
         }
 
-        food.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+        else if(orderName.equals("Suco natural de laranja") || orderName.equals("Coca-Cola") || orderName.equals("Cerveja")) {
 
-                value = dataSnapshot.child(orderName).getValue(String.class);
-
-                mTextView.setText("Você pediu " + orderName + "," + " esse pedido vai demorar " + value +
-                        " e vai custar R$" + orderPrice + ", deseja confirmar?");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
+            mTextView.setText("Você pediu " + orderName + "," + " e vai custar R$" + orderPrice + ", deseja confirmar?");
+        }
 
         mButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v){
 
+                //Pega comentário, SE HOUVER
                 mCommentary = editText.getText().toString();
 
-                orderReference.child(tableNumber).child(Calendar.getInstance().getTime().toString()).setValue(order);
+                order = new Order(orderName, orderPrice, mCommentary);
 
+                //Cria referência dentro de Pedidos e coloca como chave o Datastamp do pedido
+                orderReference.child(tableNumber).child("" + numberOrders).setValue(order);
+
+                numberOrders = numberOrders + 1;
+
+                //Cria Intent com as informações
                 Intent i = new Intent(OrderActivity.this, ScanActivity.class);
+
+                //Adiciona informações
                 i.putExtra("orderName", orderName);
                 i.putExtra("orderPrice", orderPrice);
                 if (mCommentary != null) {
                     i.putExtra("orderCommentary", mCommentary);
                 }
+
+                //Seta resultado para outra tela receber informado que está tudo certo
                 setResult(RESULT_OK, i);
                 finish();
             }

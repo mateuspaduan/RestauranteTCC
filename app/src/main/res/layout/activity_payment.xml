@@ -59,7 +59,7 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Agradecemos a preferência."
+        android:text=""
         android:layout_below="@+id/checkBox2"
         android:layout_alignStart="@+id/textView2" />
 
@@ -67,8 +67,7 @@
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/textView4"
+        android:text="Obrigado, volte sempre!"
         android:layout_alignTop="@+id/checkBox4"
-        android:layout_marginEnd="46dp"
-        android:text="Volte sempre!" />
+        android:layout_alignEnd="@+id/textView4" />
 </RelativeLayout>

@@ -46,10 +46,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
+        FacebookSdk.sdkInitialize(getApplicationContext()); //Busca SDK do Facebook p/ login
         AppEventsLogger.activateApp(this);
 
-        mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance(); //Pega instância de autenticação do banco
 
         mEmail = (EditText) findViewById(R.id.email);
         mPassword = (EditText) findViewById(R.id.password);
@@ -61,12 +61,12 @@ public class LoginActivity extends AppCompatActivity {
 
         mProgressBar = (RelativeLayout) findViewById(R.id.progressBar);
 
-        mProgressBar.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE); //Instancia barra de loading
 
-        mRegister.setOnClickListener(new View.OnClickListener(){
+        mRegister.setOnClickListener(new View.OnClickListener(){ //Seta listener de click para o texto de cadastro
 
             @Override
-            public void onClick(View v){
+            public void onClick(View v){ //Quando clica
 
                 Intent i = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(i);
@@ -79,10 +79,12 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.VISIBLE); //Deixa visivel a barra de loadin
 
-                mTextEmail = mEmail.getText().toString();
+                mTextEmail = mEmail.getText().toString(); //Pega o texto no campo
                 mTextPassword = mPassword.getText().toString();
+
+                //Função para realizar o login utilizando o Firebase, passando email e senha
 
                 mAuth.signInWithEmailAndPassword(mTextEmail, mTextPassword).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -94,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
                             // there was an error
                             Toast.makeText(LoginActivity.this, "Algum erro ocorreu.", Toast.LENGTH_LONG).show();
                         } else {
-                            if (mKeepLogged.isChecked()) {
+                            if (mKeepLogged.isChecked()) { //Se o manter logado está marcado
                                 SharedPreferencesController.putString(LoginActivity.this, "logado", "true");
                                 SharedPreferencesController.putString(LoginActivity.this, "username", mTextEmail);
                                 SharedPreferencesController.putString(LoginActivity.this, "password", mTextPassword);
@@ -103,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
                             startActivity(intent);
                             finish();
                         }
-                        mProgressBar.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(View.GONE); //Deixa invisivel a barra de loading
                     }
                 });
             }

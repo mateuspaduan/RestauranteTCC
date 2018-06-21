@@ -42,14 +42,18 @@ public class FeedBackActivity extends AppCompatActivity {
         textFeedback = (EditText) findViewById(R.id.editText);
         sendFeedback = (Button) findViewById(R.id.button2);
 
+        //Pega email do usuário para criar o objeto informando quem foi que deu o Feedback
         mEmail = SharedPreferencesController.getString(this, "username");
 
         sendFeedback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+
+                //Feedback não está vazio?
                 if(textFeedback!=null){
 
+                    //Cria objeto Feedback, sobe para o banco, espera um com a barra de loading e volta para a tela principal
                     Feedback feedback = new Feedback(mEmail, textFeedback.getText().toString());
                     mFeedbackReference.child(Calendar.getInstance().getTime().toString()).setValue(feedback);
                     Toast.makeText(getApplicationContext(), "Enviando feedback..", Toast.LENGTH_LONG).show();
@@ -68,6 +72,7 @@ public class FeedBackActivity extends AppCompatActivity {
         });
     }
 
+    //Volta para a tela principal
     @Override
     public void onBackPressed() {
 

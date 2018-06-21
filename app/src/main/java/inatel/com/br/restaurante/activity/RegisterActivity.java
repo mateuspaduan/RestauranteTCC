@@ -42,11 +42,11 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
-    private DatabaseReference userReference = database.getReference("Usuarios");
+    private FirebaseDatabase database = FirebaseDatabase.getInstance(); //Pega instância do BANCO DE DADOS
+    private DatabaseReference userReference = database.getReference("Usuarios"); //Cria referência da instância do banco para armazenar Usuários
 
     @Override
-    public void onBackPressed() {
+    public void onBackPressed() { //Se apertar o botão de voltar do Android, volta para tela de Login
 
         Intent i = new Intent(RegisterActivity.this, LoginActivity.class);
         startActivity(i);
@@ -61,7 +61,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
+        mAuthListener = new FirebaseAuth.AuthStateListener() { //Pega referência do atual usuário logado
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
@@ -92,29 +92,43 @@ public class RegisterActivity extends AppCompatActivity {
 
                 mProgressBar.setVisibility(View.VISIBLE);
 
+                //Pega Strings dos campos
+
                 mTextName = mName.getText().toString();
                 mTextPhoneNumber = mPhoneNumber.getText().toString();
                 mTextEmail = mEmail.getText().toString();
                 mTextPassword = mPassword.getText().toString();
 
+                //Se estiverem vazias
+
                 if ((mTextName.equals("") || mTextPhoneNumber.equals("") || mTextEmail.equals("") ||
                         mTextPassword.equals(""))) {
                     Toast.makeText(getApplicationContext(), "Alguns campos estão vazios.", Toast.LENGTH_SHORT).show();
                     mProgressBar.setVisibility(View.GONE);
-                } else {
+                } else { //Senão..
+
+                    //Função que cria usuário no Firebase utilizando o Email e a senha do mesmo
+
                     mAuth.createUserWithEmailAndPassword(mTextEmail, mTextPassword).addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
 
                             if (!task.isSuccessful()) {
 
+                                //Se falhar por algum motivo, mostra texto rápido na tela informando falha
                                 Toast.makeText(RegisterActivity.this, "Algo falhou.", Toast.LENGTH_SHORT);
-                            } else {
+                            }
 
+                            else {
+
+                                //Se não, informa sucesso, esconde barra de loading, cria objeto Usuário
+                                //de acordo com o construtor
                                 Toast.makeText(RegisterActivity.this, "Sucesso!", Toast.LENGTH_SHORT);
                                 mProgressBar.setVisibility(View.GONE);
 
                                 User user = new User(mTextEmail, mTextPhoneNumber);
+
+                                //Insere dentro da referência do banco o objeto Usuários
                                 userReference.child(mTextName).setValue(user);
 
                                 Intent i = new Intent(RegisterActivity.this, LoginActivity.class);

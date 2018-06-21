@@ -7,9 +7,11 @@ package inatel.com.br.restaurante.model;
 public class Payment {
 
     public String type;
+    public String value;
 
-    public Payment(String mType){
+    public Payment(String mType, String mValue){
 
         type = mType;
+        value = mValue;
     }
 }
